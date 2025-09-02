@@ -16,6 +16,8 @@ struct ContentView: View {
     @AppStorage("iconOnlyThreshold") private var iconOnlyThresholdRaw: Double = 800
     @AppStorage("menuBarShrinkFactor") private var menuBarShrinkFactorRaw: Double = 1.0
     @AppStorage("iconOnlySize") private var iconOnlySizeRaw: Double = 28.0
+    @AppStorage("menuBarTopPadding") private var menuBarTopPaddingRaw: Double = 16.0
+    @AppStorage("maxMenuBarSize") private var maxMenuBarSizeRaw: Double = 2.0
 
     // Fügt einen Namespace hinzu, um die Geometrie für die Animation zu verfolgen
     @Namespace private var namespace
@@ -25,6 +27,8 @@ struct ContentView: View {
     var iconOnlyThreshold: CGFloat { CGFloat(iconOnlyThresholdRaw) }
     var menuBarShrinkFactor: CGFloat { CGFloat(menuBarShrinkFactorRaw) }
     var iconOnlySize: CGFloat { CGFloat(iconOnlySizeRaw) }
+    var menuBarTopPadding: CGFloat { CGFloat(menuBarTopPaddingRaw) }
+    var maxMenuBarSize: CGFloat { CGFloat(maxMenuBarSizeRaw) }
 
     // Bestimmt, ob es sich um ein iPad handelt
     var isPad: Bool {
@@ -44,7 +48,7 @@ struct ContentView: View {
                 let baseWidth: CGFloat = 800
                 
                 let shrink = pow(max(w, 1) / baseWidth, menuBarShrinkFactor)
-                let fontSize = max(min(shrink * menuBarScale * CGFloat(baseFontSize), CGFloat(baseFontSize * 2)), 12)
+                let fontSize = max(min(shrink * menuBarScale * CGFloat(baseFontSize), CGFloat(baseFontSize) * maxMenuBarSize), 12)
                 let hPad = max(min(shrink * menuBarScale * CGFloat(baseHPad), CGFloat(baseHPad * 2)), 8)
                 let showText = w > iconOnlyThreshold
 
@@ -69,14 +73,9 @@ struct ContentView: View {
                             .background(
                                 ZStack {
                                     if selectedIndex == idx {
-                                        if #available(iOS 26.0, *) {
-                                            Capsule()
-                                                .fill(Color.white.opacity(0.4))
-                                                .matchedGeometryEffect(id: "selectedTab", in: namespace, isSource: true)
-                                                .glassEffect(in: Capsule())
-                                        } else {
-                                            // Fallback on earlier versions
-                                        }
+                                        Capsule()
+                                            .fill(Color.white.opacity(0.4))
+                                            .matchedGeometryEffect(id: "selectedTab", in: namespace, isSource: true)
                                     }
                                 }
                             )
@@ -123,12 +122,29 @@ struct ContentView: View {
                             )
                         } else if selectedIndex == 4 {
                             VStack(spacing: 24) {
+                                // Neuer Schieberegler für den oberen Abstand
+                                Text("Abstand oben")
+                                    .font(.title2)
+                                Slider(value: $menuBarTopPaddingRaw, in: 0...50, step: 1)
+                                Text("Abstand: \(Int(menuBarTopPadding)) pt")
+                                    .font(.body)
+                                Divider()
+
                                 Text("Menüleisten-Größe")
                                     .font(.title2)
                                 Slider(value: $menuBarScaleRaw, in: 0.5...2.0, step: 0.01)
                                 Text(String(format: "Skalierung: %.2f", menuBarScale))
                                     .font(.body)
                                 Divider()
+                                
+                                // Neuer Schieberegler für die maximale Menüleisten-Größe
+                                Text("Maximale Menüleisten-Größe")
+                                    .font(.title2)
+                                Slider(value: $maxMenuBarSizeRaw, in: 1.0...5.0, step: 0.1)
+                                Text(String(format: "Maximale Größe: %.1fx", maxMenuBarSize))
+                                    .font(.body)
+                                Divider()
+                                
                                 Text("Icon-Only Schwelle (px)")
                                     .font(.title2)
                                 Slider(value: $iconOnlyThresholdRaw, in: 200...1200, step: 1)
@@ -159,6 +175,7 @@ struct ContentView: View {
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
+        .padding(.top, menuBarTopPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -219,7 +236,9 @@ struct CalculatorView: View {
             }
             ForEach(buttons, id: \.self) { row in
                 HStack(spacing: spacingH) {
-                    ForEach(row, id: \.self) { symbol in
+                    // Verwende row.indices, um eindeutige IDs zu gewährleisten
+                    ForEach(row.indices, id: \.self) { idx in
+                        let symbol = row[idx]
                         if symbol.isEmpty {
                             Spacer()
                         } else {

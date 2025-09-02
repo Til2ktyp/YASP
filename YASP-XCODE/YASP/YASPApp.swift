@@ -12,6 +12,13 @@ struct YASPApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    #if os(macOS)
+                    if let window = NSApplication.shared.windows.first {
+                        window.tabbingMode = .disallowed
+                    }
+                    #endif
+                }
         }
     }
 }
