@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+
+    <head>
+        <style>
+
+     .überschrifft  {
+        color: gray;
+        background-color: black;
+      }  
+    </style>
+
+    <title>YASP</title>
+    </head>
+
+    <body>
+    
+      <h1 class="überschrifft"> YASP/html5 basis</h1>
+    
+        <script>
+        </script>
+
+    </body>
+
+</html>

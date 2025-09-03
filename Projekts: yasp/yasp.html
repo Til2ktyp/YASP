@@ -1,0 +1,116 @@
+<!doctype html>
+<html  lang="de">
+
+    <head>
+
+      <meta charset="UTF-8">
+        <style>
+      body {
+        font-family: 'Segeo UI', Arial, sans-serif;
+        background: #f8f8fa;
+        margin: 0;
+        padding: 0;
+        color: #2a2a2a;
+      }
+
+      .header {
+      color: #fff;
+      background: linear-gradient(90deg, #444  60%, #222 100%);
+      width: 100%;
+     padding: 32px  0  24px 0;
+     text-align: center;
+     font-size: 2.3em;
+     letter-spacing: 2px;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+   }
+
+   .container   {
+    max-width: 500px;
+    margin: 0 auto 40px auto;
+    background: #fff;
+    border
+   }
+
+    </style>
+
+    <title>YASP</title>
+
+    </head>
+
+    <body>
+
+      <h1>YASP</h1>
+
+      <h2> ordner anlegen </h2>
+       <input id="ordnerName" type="text" placeholder="OrdnerName">
+       <button onclick="addOrdner()"> Neuer Ordner </button>
+       <div id="ordnerListe"> </div>
+        
+       <div style="text-align: center;">
+       <h2>Arbeitsblatt erstellen</h2>
+       <input id="blattTitel" type="text" placeholder="Titel  des arbeitsblatts">
+       <input id="blattBeschreibung" type="text" placeholder="blattBeschreibung">
+       <select id="ordnerSelect"> </select>
+       <button onclick="addArbeitsblatt()">Arbeitsbaltt Hinzufügen</button>
+       <div id="arbeitsBlaetterListe"></div>
+      </div>
+
+        <script>
+          let ordner = [];
+
+          function addOrdner() {
+            const name  =  document.getElementById('ordnerName').value.trim();
+          if (name && !ordner.includes(name)) {
+            ordner.push(name);
+               showOrdner();
+               showOrdnerSelect();
+               showArbeitsblaetter();
+            document.getElementById('ordnerName').value = '';
+            }
+          }
+
+          function showOrdner() {
+            const div = document.getElementById('ordnerListe');
+            div.innerHTML = ordner.map(name => `<div>${name}</div>`).join('');
+          }
+
+         let arbeitsblaetter  =  [];
+
+         function showOrdnerSelect() {
+          const sel  = document.getElementById('ordnerSelect');
+          sel.innerHTML = ordner.map(name => `<option value="${name}">${name}</option>`).join('');
+         }
+
+         function addArbeitsblatt() {
+          const titel = document.getElementById('blattTitel').value.trim();
+          const beschreibung = document.getElementById('blattBeschreibung').value.trim();
+          const ordnerName = document.getElementById('ordnerSelect').value;
+          if (titel && ordnerName) {
+            arbeitsblaetter.push({ titel, beschreibung, ordner: ordnerName });
+            showArbeitsblaetter();
+            document.getElementById('blattTitel').value = '';
+            document.getElementById('blattBeschreibung').value = '';
+
+          }
+         }
+
+         function showArbeitsblaetter(){
+          const div = document.getElementById('arbeitsBlaetterListe');
+
+          div.innerHTML = ordner.map(name => {
+            const BlattList = arbeitsblaetter
+            .filter(b => b.ordner ===  name)
+            .map(b => `<div><b>${b.titel}</b>: ${b.beschreibung}</div>`).join('');
+            return `<div><h3>${name}</h3>${BlattList || '<i>keine Arbeitsblätter</i>'}</div>`;
+          }).join('');
+         }
+
+         showOrdnerSelect();
+         showArbeitsblaetter();
+
+        </script>
+
+    </body>
+
+</html>
+
